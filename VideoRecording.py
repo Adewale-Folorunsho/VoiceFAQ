@@ -8,21 +8,63 @@ import pandas as pd
 import signal
 
 def teardown(x , y):
-    print("got here")
-    #print("got here")
     camera.release()
     out.release()
+    cv2.destroyAllWindows()
+
+    # os.wait()
+    #emotionDetector()
     sys.exit(0)
+
+# def emotionDetector():
+#     location_videofile = "/Users/adewalefolorunsho/Desktop/Voice_Faq_Project/faqVideoRecording.avi"
+
+#     # Build the Face detection detector
+#     face_detector = FER(mtcnn=True)
+#     # Input the video for processing
+#     input_video = Video(location_videofile) # process the video by frames
+
+#     # The Analyze() fucnction will run analysis on every frame of the input video. 
+#     # It will create a rectangular box around every image and show the emotion values next to that.
+#     # Finally, the method will publish a new video that will have a box around the face of the human with live emotion values.
+#     processing_data = input_video.analyze(face_detector, display=False) # analyze face using the FER detector
+
+#     # We will now convert the analysed information into a dataframe.
+#     # This will help us import the data as a .CSV file to perform analysis over it later
+#     vid_df = input_video.to_pandas(processing_data)
+#     vid_df = input_video.get_first_face(vid_df)
+#     vid_df = input_video.get_emotions(vid_df)
+
+#     # Plotting the emotions against time in the video
+#     pltfig = vid_df.plot(figsize=(20, 8), fontsize=16).get_figure()
+
+#     # We will now work on the dataframe to extract which emotion was prominent in the video
+#     angry = sum(vid_df.angry)
+#     disgust = sum(vid_df.disgust)
+#     fear = sum(vid_df.fear)
+#     happy = sum(vid_df.happy)
+#     sad = sum(vid_df.sad)
+#     surprise = sum(vid_df.surprise)
+#     neutral = sum(vid_df.neutral)
+
+#     emotions = ['Angry', 'Disgust', 'Fear', 'Happy', 'Sad', 'Surprise', 'Neutral']
+#     emotions_values = [angry, disgust, fear, happy, sad, surprise, neutral]
+
+#     score_comparisons = pd.DataFrame(emotions, columns = ['Human Emotions'])
+#     score_comparisons['Emotion Value from the Video'] = emotions_values
+#     score_comparisons
 
 
 signal.signal(signal.SIGINT, teardown)
 filename = 'faqVideoRecording.avi'
 frames_per_second = 24.0
 res = '720p'
+
 #face_detector = FER(mtcnn=True)
 app=Flask(__name__)
 # Set resolution for the video capture
 # Function adapted from https://kirr.co/0l6qmh
+
 def change_res(cap, width, height):
     cap.set(3, width)
     cap.set(4, height)
@@ -48,7 +90,6 @@ def get_dims(cap, res='1080p'):
 
 camera=cv2.VideoCapture(0)
 out = cv2.VideoWriter(filename, cv2.VideoWriter_fourcc(*'XVID'), 25, get_dims(camera, res))
-#vid_df = pd.DataFrame()
 
 def generate_frames():
     while True:
@@ -57,9 +98,6 @@ def generate_frames():
         if not success:
             break
         else:
-            # input_video = Video("/video")
-            # processing_data = input_video.analyze(face_detector, display=False)
-            # vid_df.append(input_video.to_pandas(processing_data))
             ret,buffer=cv2.imencode('.jpg',frame)
             frame=buffer.tobytes()
 
@@ -75,24 +113,7 @@ def index():
 def video():
     return Response(generate_frames(),mimetype='multipart/x-mixed-replace; boundary=frame')
 
-#@app.teardown_appcontext
-def teardown(e):
-    print(e)
-    #print("got here")
-    if e is not None:
-        camera.release()
-        out.release()
-
 if __name__=="__main__":
-    #try:
     app.run(debug=True)
-    # except KeyboardInterrupt:
-    #     print("got here")
-    #     camera.release()
-    #     out.release()
-    #     try:
-    #         sys.exit(0)
-    #     except SystemExit:
-    #         os._exit(0)
 
 
