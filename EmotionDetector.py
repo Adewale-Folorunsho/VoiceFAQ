@@ -4,6 +4,7 @@ import pandas as pd
 
 # Put in the location of the video file that has to be processed
 location_videofile = "/Users/adewalefolorunsho/Desktop/Voice_Faq_Project/faqVideoRecording.avi"
+times = []
 
 # Build the Face detection detector
 face_detector = FER(mtcnn=True)
@@ -20,11 +21,11 @@ processing_data = input_video.analyze(face_detector, display=False) # analyze fa
 vid_df = input_video.to_pandas(processing_data)
 vid_df = input_video.get_first_face(vid_df)
 vid_df = input_video.get_emotions(vid_df)
-
 # Plotting the emotions against time in the video
 pltfig = vid_df.plot(figsize=(20, 8), fontsize=16).get_figure()
 open("plot.pdf", "w")
 pltfig.savefig('plot.pdf')
+
 
 # We will now work on the dataframe to extract which emotion was prominent in the video
 angry = sum(vid_df.angry)
